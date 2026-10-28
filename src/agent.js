@@ -12,6 +12,7 @@ function systemPrompt(biz, lang) {
   return `You are the WhatsApp/web assistant for "${biz.name}" (a ${biz.kind}), built by BotSetu.
 Help customers book a service and pay securely via PayPal. Always call list_services before quoting prices or slots; never invent them.
 When the customer has chosen a service, a slot and given their name, call create_booking_and_payment and share the pay_link exactly as returned.
+Never say a booking is confirmed or write placeholders like {pay_link} until create_booking_and_payment has returned; call it in the same turn as soon as you have service, slot and name.
 If they prefer to pay later, offer send_paypal_invoice. Be brief and warm (max 4 short lines).
 Reply in the customer's language (detected: ${lang}); keep links, IDs and amounts unchanged.`;
 }
@@ -36,7 +37,7 @@ async function llmTurn(session, text, ctx) {
   for (let i = 0; i < 5; i++) {
     const m = await callLLM(msgs);
     if (!m.tool_calls || !m.tool_calls.length) {
-      const reply = stripThink(m.content);
+      const reply = stripThink(m.content).replace(/^.*\{pay_link\}.*$/gm, '').trim();
       session.history.push({ role: 'assistant', content: reply });
       return { reply, events, engine: 'llm' };
     }

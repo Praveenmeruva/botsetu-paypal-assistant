@@ -43,3 +43,12 @@ This assistant was newly built during the Submission Period (Oct–Nov 2026).
 
 ## Try it
 Repo: https://github.com/Praveenmeruva/botsetu-paypal-assistant. Follow the README Setup. It needs PayPal sandbox app credentials and runs offline in MOCK mode without them.
+
+## Submission form fields
+* **Project name:** BotSetu × PayPal: multilingual chat booking with PayPal Checkout and Invoicing
+* **Tagline:** Book and pay in Telugu, Hindi, Tamil or English, inside the chat, with PayPal.
+* **Video (under 3 min):** `<YOUTUBE_URL>` (file: video/botsetu-paypal.mp4, 2:32, 1080p, English voiceover with subtitles)
+* **Repository:** https://github.com/Praveenmeruva/botsetu-paypal-assistant (MIT)
+* **Testing instructions:** `cp .env.example .env`, add PayPal sandbox client ID/secret (or leave empty for MOCK mode), `node src/server.js`, open http://localhost:3000, then pay with any PayPal sandbox personal (US) account. Owner dashboard: /dashboard.html. Tests: `npm test`.
+* **PayPal APIs used:** Orders v2 (create, capture), Invoicing v2 (create, send), OAuth2 client credentials.
+* **Built with:** node.js, paypal-orders-api, paypal-invoicing-api, sarvam-ai, javascript, html

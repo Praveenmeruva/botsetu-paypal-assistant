@@ -20,7 +20,9 @@ const readBody = (req) => new Promise((ok) => { let d = ''; req.on('data', (c) =
 
 function getSession(id, business) {
   if (!store.sessions.has(id)) store.sessions.set(id, { business: catalog[business] ? business : 'sunrise-clinic', history: [], outbox: [] });
-  return store.sessions.get(id);
+  const s = store.sessions.get(id);
+  if (catalog[business] && s.business !== business) { s.business = business; s.history = []; s.rule = {}; } // switched business
+  return s;
 }
 
 async function capture(bookingId, orderId) {
