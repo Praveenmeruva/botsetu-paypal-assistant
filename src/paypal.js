@@ -27,7 +27,7 @@ async function getToken() {
   return token;
 }
 
-async function api(method, path, body, extraHeaders = {}) {
+async function api(method, path, body, extraHeaders = {}, retried = false) {
   const res = await fetch(BASE + path, {
     method,
     headers: {
@@ -40,6 +40,8 @@ async function api(method, path, body, extraHeaders = {}) {
   });
   const text = await res.text();
   const data = text ? JSON.parse(text) : {};
+  // Token scopes are fixed at issue time: after enabling a feature (e.g. Invoicing) refresh once and retry.
+  if ((res.status === 401 || res.status === 403) && !retried) { token = null; tokenExp = 0; return api(method, path, body, extraHeaders, true); }
   if (!res.ok) throw new Error(`PayPal ${method} ${path} -> ${res.status}: ${text}`);
   return data;
 }
@@ -103,4 +105,6 @@ async function createAndSendInvoice({ referenceId, itemName, amount, currency, p
   return { id, status: inv.status, payUrl: inv.detail?.metadata?.recipient_view_url };
 }
 
+if (!MOCK && (process.env.CURRENCY || 'USD').toUpperCase() === 'INR')
+  console.warn('WARNING: CURRENCY=INR is rejected by PayPal Orders (CURRENCY_NOT_SUPPORTED): PayPal has no domestic India payments since 1 Apr 2021. Use USD with a non-IN buyer.');
 module.exports = { MOCK, ENV, createOrder, captureOrder, getOrder, createAndSendInvoice };

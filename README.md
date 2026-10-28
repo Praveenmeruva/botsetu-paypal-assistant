@@ -61,6 +61,7 @@ Safety: idempotent `PayPal-Request-Id` on create and capture, a slot-clash check
 6. Open http://localhost:3000/dashboard to see both bookings, their statuses and the PayPal IDs.
 
 ## Notes
+* **India accounts:** PayPal has not offered domestic payments in India since 1 April 2021. `CURRENCY=INR` returns `CURRENCY_NOT_SUPPORTED`, and an IN buyer paying an IN seller in USD sees "This seller doesn't accept payments in your currency". Keep `CURRENCY=USD` (the default) and pay with a **US personal** sandbox account (Testing Tools → Sandbox Accounts → Create, country United States). An IN business account can receive USD from that buyer.
 * Sandbox prices are in USD (`CURRENCY`), because sandbox merchant accounts receive USD reliably. Production would use the merchant's currency.
 * State is kept in memory. Swap `src/store.js` for a database in production.
 
