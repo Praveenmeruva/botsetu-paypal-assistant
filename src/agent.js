@@ -64,7 +64,7 @@ async function ruleTurn(session, text, ctx) {
   const name = en.match(/(?:name is|i am|i'm|naa peru|name:)\s*([A-Za-z][A-Za-z ]{1,30})/i);
   if (/invoice|pay later/.test(t) && st.bookingId) {
     const r = await tools.run('send_paypal_invoice', { booking_id: st.bookingId }, ctx); events.push({ tool: 'send_paypal_invoice', result: r });
-    reply = `PayPal invoice ${r.invoice_id} created. Pay here: ${r.invoice_link}`;
+    reply = r.invoice_id ? `PayPal invoice ${r.invoice_id} created. Pay here: ${r.invoice_link}` : `No problem, pay any time before your visit with this PayPal link: ${r.invoice_link}`;
   } else {
     if (!st.service && svcIdx && biz.services[svcIdx[1] - 1]) st.service = biz.services[svcIdx[1] - 1].id;
     if (slot) st.slot = slot;

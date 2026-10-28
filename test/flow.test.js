@@ -1,4 +1,5 @@
 // End-to-end flow in MOCK mode with the rule engine (no network).
+process.env.NO_DOTENV = '1';
 process.env.PAYPAL_CLIENT_ID = ''; process.env.SARVAM_API_KEY = ''; process.env.LLM_API_KEY = ''; process.env.AGENT_ENGINE = 'rules';
 const test = require('node:test'); const assert = require('node:assert');
 const server = require('../src/server');

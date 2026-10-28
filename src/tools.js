@@ -43,9 +43,15 @@ async function run(name, args, ctx) {
   if (name === 'send_paypal_invoice') {
     const b = store.bookings.get(args.booking_id);
     if (!b) return { error: 'Unknown booking' };
-    const inv = await paypal.createAndSendInvoice({ referenceId: b.id, itemName: `${b.service} (${b.date} ${b.slot})`, amount: b.amount, currency: b.currency, payerEmail: args.payer_email });
-    b.invoiceId = inv.id;
-    return { booking_id: b.id, invoice_id: inv.id, status: inv.status, invoice_link: inv.payUrl };
+    try {
+      const inv = await paypal.createAndSendInvoice({ referenceId: b.id, itemName: `${b.service} (${b.date} ${b.slot})`, amount: b.amount, currency: b.currency, payerEmail: args.payer_email });
+      b.invoiceId = inv.id;
+      return { booking_id: b.id, invoice_id: inv.id, status: inv.status, invoice_link: inv.payUrl };
+    } catch (e) {
+      // e.g. 403 when the PayPal app lacks the Invoicing feature: fall back to the existing PayPal checkout link.
+      console.warn('Invoicing unavailable:', e.message.slice(0, 200));
+      return { booking_id: b.id, invoice_id: null, status: 'INVOICE_UNAVAILABLE', invoice_link: b.payLink, note: 'PayPal invoice could not be created; share this PayPal checkout link to pay later instead.' };
+    }
   }
   if (name === 'check_payment_status') {
     const b = store.bookings.get(args.booking_id);

@@ -14,6 +14,7 @@ Zero npm dependencies. You need only Node 18+.
 ## Setup (about 5 minutes)
 
 1. Create a free sandbox app at https://developer.paypal.com → *Apps & Credentials* → **Sandbox** → *Create App*. Copy the **Client ID** and **Secret**. Under *Sandbox accounts*, note the **personal** (buyer) account email and password for paying.
+   * For the invoice path, enable **Invoicing** under the app's *Features*. Without it, PayPal returns 403 and the assistant falls back to sharing the PayPal checkout link.
 2. Optionally, get a Sarvam API key at https://dashboard.sarvam.ai for the multilingual AI.
 3. Configure and run:
    ```bash
