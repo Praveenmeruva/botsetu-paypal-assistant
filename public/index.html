@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BotSetu Assistant · PayPal</title>
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#e5ddd5;display:flex;justify-content:center}
+.app{width:100%;max-width:440px;height:100vh;display:flex;flex-direction:column;background:#efeae2}
+header{background:#075e54;color:#fff;padding:12px 14px}
+header select{margin-top:6px;width:100%;padding:4px}
+.badge{font-size:11px;background:#ffc439;color:#000;border-radius:8px;padding:1px 6px;margin-left:6px}
+#log{flex:1;overflow:auto;padding:12px}
+.m{max-width:80%;padding:8px 10px;border-radius:8px;margin:6px 0;white-space:pre-wrap;word-wrap:break-word;font-size:14px;box-shadow:0 1px 1px #0002}
+.u{background:#dcf8c6;margin-left:auto}.b{background:#fff}
+.t{font-size:11px;color:#667;background:#fff8;border-radius:6px;padding:3px 6px;margin:2px 0;font-family:monospace}
+.pp{display:inline-block;margin-top:6px;background:#ffc439;color:#003087;font-weight:700;padding:6px 12px;border-radius:16px;text-decoration:none}
+form{display:flex;padding:8px;gap:6px;background:#f0f0f0}input{flex:1;padding:10px;border-radius:20px;border:1px solid #ccc}
+button{border:0;background:#075e54;color:#fff;border-radius:20px;padding:0 16px}
+.chips{display:flex;gap:4px;flex-wrap:wrap;padding:4px 8px}.chips span{font-size:12px;background:#fff;border-radius:12px;padding:3px 8px;cursor:pointer}
+</style></head><body><div class="app">
+<header><b>BotSetu Assistant</b><span class="badge" id="mode"></span><br><select id="biz"></select></header>
+<div id="log"></div>
+<div class="chips" id="chips"></div>
+<form id="f"><input id="q" placeholder="Type in any language…" autocomplete="off"><button>Send</button></form>
+</div>
+<script>
+const sid = 's' + Math.random().toString(36).slice(2);
+const log = document.getElementById('log');
+const samples = ['Hi, I want to see a doctor', 'నాకు డాక్టర్ అపాయింట్‌మెంట్ కావాలి', 'मुझे कल शाम का अपॉइंटमेंट चाहिए', 'எனக்கு மருத்துவர் சந்திப்பு வேண்டும்', 'pay later'];
+function add(text, cls) {
+  const d = document.createElement('div'); d.className = 'm ' + cls;
+  const safe = text.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  d.innerHTML = safe.replace(/(https?:\/\/[^\s)]+)/g, u => /paypal|token=/.test(u) ? `<br><a class="pp" target="_blank" href="${u}">Pay with PayPal</a>` : `<a target="_blank" href="${u}">${u}</a>`);
+  log.appendChild(d); log.scrollTop = 1e9;
+}
+function tool(e) { const d = document.createElement('div'); d.className = 't'; d.textContent = '⚙ ' + e.tool + (e.result && e.result.paypal_order_id ? ' → PayPal order ' + e.result.paypal_order_id : e.result && e.result.invoice_id ? ' → PayPal invoice ' + e.result.invoice_id : ''); log.appendChild(d); }
+fetch('/api/config').then(r => r.json()).then(c => {
+  document.getElementById('mode').textContent = c.mock ? 'PayPal MOCK' : 'PayPal ' + c.env;
+  const s = document.getElementById('biz');
+  for (const [k, v] of Object.entries(c.businesses)) s.add(new Option(v, k));
+});
+const chips = document.getElementById('chips');
+samples.forEach(t => { const c = document.createElement('span'); c.textContent = t; c.onclick = () => send(t); chips.appendChild(c); });
+async function send(text) {
+  add(text, 'u');
+  const r = await fetch('/api/chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ sessionId: sid, business: document.getElementById('biz').value, text }) }).then(r => r.json());
+  (r.events || []).forEach(tool);
+  add(r.reply || r.error, 'b');
+}
+document.getElementById('f').onsubmit = e => { e.preventDefault(); const q = document.getElementById('q'); if (q.value.trim()) send(q.value.trim()); q.value = ''; };
+setInterval(async () => { const r = await fetch('/api/outbox?sessionId=' + sid).then(r => r.json()); r.messages.forEach(m => add(m, 'b')); }, 2000);
+</script></body></html>

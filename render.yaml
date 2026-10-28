@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: botsetu-paypal-assistant
+    runtime: node
+    plan: free
+    buildCommand: "true"
+    startCommand: node src/server.js
+    envVars:
+      - key: PAYPAL_ENV
+        value: sandbox
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: sarvam-105b
+      - key: PUBLIC_BASE_URL
+        sync: false

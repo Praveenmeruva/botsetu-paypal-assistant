@@ -1,0 +1,9 @@
+{
+  "name": "botsetu-paypal-assistant",
+  "version": "1.0.0",
+  "description": "Multilingual AI chat assistant that books appointments/orders for small Indian businesses and collects payment via PayPal Orders API and Invoicing.",
+  "main": "src/server.js",
+  "scripts": { "start": "node src/server.js", "test": "node --test test/" },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}
